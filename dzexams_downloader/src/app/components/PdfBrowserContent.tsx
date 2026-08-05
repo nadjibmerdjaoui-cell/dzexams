@@ -374,10 +374,10 @@ export default function PdfBrowserContent() {
             {/* Header */}
             <div className="text-center">
               <div className="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/30 text-yellow-300 text-xs font-bold px-4 py-1.5 rounded-full mb-4">
-                ✨ منصة الامتحانات الجزائرية
+                ✨ Easy School — المدرسة السهلة
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
-                مرحباً بك في DZExams
+                مرحباً بك في Easy School
               </h1>
               <p className="text-blue-200 text-base">
                 اختر مرحلتك الدراسية للبدء
@@ -462,7 +462,7 @@ export default function PdfBrowserContent() {
           <div className="flex-1 text-right">
             <div className="flex items-center gap-2 justify-end mb-2">
               <span className="text-xs font-semibold text-yellow-300 bg-yellow-400/20 px-2.5 py-1 rounded-full border border-yellow-400/30">
-                ✨ منصة الامتحانات الجزائرية
+                ✨ Easy School — المدرسة السهلة
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-1">
@@ -516,8 +516,7 @@ export default function PdfBrowserContent() {
       {isFree && (
         <div className="px-4 pt-3">
           <FreeLimitBanner
-            remainingDownloads={remainingFreeDownloads}
-            dailyLimit={FREE_DAILY_LIMIT}
+            message={`تبقى لك ${remainingFreeDownloads} تحميل مجاني اليوم من أصل ${FREE_DAILY_LIMIT}`}
           />
         </div>
       )}

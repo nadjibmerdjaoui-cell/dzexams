@@ -18,9 +18,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'DzExams Downloader — تحميل ملفات PDF المدرسية',
+  title: 'Easy School — تحميل ملفات PDF المدرسية الجزائرية',
   description:
-    'Browse and bulk-download Algerian secondary school PDFs from DzExams, organized by school year and subject.',
+    'Browse and bulk-download Algerian school PDFs for all levels (primary, middle, secondary), organized by year and subject.',
   icons: {
     icon: [{ url: '/favicon.ico', type: 'image/x-icon' }],
   },

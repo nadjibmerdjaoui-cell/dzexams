@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { FolderOpen, Download, ChevronLeft, ChevronRight, Wifi, WifiOff, BarChart2, Bot, LogIn, LogOut, User, CreditCard, UserCircle, GraduationCap,  } from 'lucide-react';
+import { FolderOpen, Download, ChevronLeft, ChevronRight, Wifi, WifiOff, ChartBar as BarChart2, Bot, LogIn, LogOut, User, CreditCard, CircleUser as UserCircle, GraduationCap, Upload } from 'lucide-react';
 
 interface NavItem {
   label: string;
@@ -23,7 +23,6 @@ const navItems: NavItem[] = [
     labelAr: 'تصفح الملفات',
     href: '/',
     icon: <FolderOpen size={20} />,
-    badge: 9002,
     color: 'text-blue-200 hover:bg-blue-500/20 hover:text-white',
     activeColor: 'bg-white/20 text-white border border-white/30',
   },
@@ -32,7 +31,6 @@ const navItems: NavItem[] = [
     labelAr: 'مدير التحميل',
     href: '/download-manager',
     icon: <Download size={20} />,
-    badge: 3,
     color: 'text-blue-200 hover:bg-blue-500/20 hover:text-white',
     activeColor: 'bg-white/20 text-white border border-white/30',
   },
@@ -59,6 +57,14 @@ const navItems: NavItem[] = [
     icon: <UserCircle size={20} />,
     color: 'text-blue-200 hover:bg-blue-500/20 hover:text-white',
     activeColor: 'bg-white/20 text-white border border-white/30',
+  },
+  {
+    label: 'Import PDFs',
+    labelAr: 'استيراد ملفات',
+    href: '/admin/import',
+    icon: <Upload size={20} />,
+    color: 'text-yellow-200 hover:bg-yellow-500/20 hover:text-white',
+    activeColor: 'bg-yellow-400/20 text-yellow-200 border border-yellow-400/30',
   },
 ];
 
@@ -97,10 +103,10 @@ export default function Sidebar({ activePath }: SidebarProps) {
         {!collapsed && (
           <div className="overflow-hidden">
             <span className="font-bold text-sm text-white whitespace-nowrap leading-tight block">
-              DzExams
+              Easy School
             </span>
             <span className="text-xs text-blue-200 whitespace-nowrap block">
-              PDF Downloader
+              المدرسة السهلة
             </span>
           </div>
         )}
@@ -163,7 +169,7 @@ export default function Sidebar({ activePath }: SidebarProps) {
                 <span
                   className={`text-xs font-tabular px-1.5 py-0.5 rounded-full shrink-0 ${
                     isActive
-                      ? 'bg-white/30 text-white' :'bg-white/10 text-blue-200'
+                      ? 'bg-white/30 text-white' : 'bg-white/10 text-blue-200'
                   }`}
                 >
                   {item.badge > 999
@@ -190,12 +196,12 @@ export default function Sidebar({ activePath }: SidebarProps) {
           </div>
           <div className="space-y-1.5">
             {[
-              { label: '1AS', count: '1,921', color: 'from-blue-400 to-cyan-400' },
-              { label: '2AS', count: '2,824', color: 'from-violet-400 to-purple-400' },
-              { label: '3AS', count: '4,257', color: 'from-pink-400 to-rose-400' },
+              { label: 'ثانوي', count: '9,002', color: 'from-blue-400 to-cyan-400' },
+              { label: 'متوسط', count: '16,179', color: 'from-violet-400 to-purple-400' },
+              { label: 'ابتدائي', count: '9,521', color: 'from-pink-400 to-rose-400' },
             ].map((s) => (
               <div key={`stat-${s.label}`} className="flex items-center gap-2">
-                <span className="text-xs text-blue-200 w-8">
+                <span className="text-xs text-blue-200 w-10 shrink-0">
                   {s.label}
                 </span>
                 <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
@@ -203,12 +209,12 @@ export default function Sidebar({ activePath }: SidebarProps) {
                     className={`h-full bg-gradient-to-r ${s.color} rounded-full`}
                     style={{
                       width:
-                        s.label === '1AS' ? '45%'
-                          : s.label === '2AS' ? '66%' : '100%',
+                        s.label === 'ثانوي' ? '45%'
+                          : s.label === 'متوسط' ? '81%' : '48%',
                     }}
                   />
                 </div>
-                <span className="text-xs font-tabular text-blue-200 w-10 text-right">
+                <span className="text-xs font-tabular text-blue-200 w-12 text-right shrink-0">
                   {s.count}
                 </span>
               </div>

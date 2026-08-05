@@ -109,7 +109,7 @@ function VerifyOtpForm() {
         <div className="flex flex-col items-center mb-8 gap-3">
           <AppLogo size={48} />
           <div className="text-center">
-            <h1 className="text-xl font-semibold text-foreground">DzExams</h1>
+            <h1 className="text-xl font-semibold text-foreground">Easy School</h1>
             <p className="text-sm text-muted-foreground mt-1">تأكيد البريد الإلكتروني</p>
           </div>
         </div>
