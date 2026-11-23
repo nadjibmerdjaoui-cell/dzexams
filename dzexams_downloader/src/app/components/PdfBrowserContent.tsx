@@ -591,7 +591,7 @@ export default function PdfBrowserContent() {
             downloadingId={downloadingId}
             onToggleSelect={handleToggleSelect}
             onSelectAll={handleSelectAll}
-            onDownload={handleDownloadSingle}
+            onDownloadSingle={handleDownloadSingle}
           />
         </div>
       )}
