@@ -365,21 +365,21 @@ export default function PdfBrowserContent() {
 
       {/* ── Full-screen Level/Year Selection Overlay ── */}
       {showYearOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-y-auto py-8" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)' }}>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-start overflow-y-auto overscroll-contain py-4 sm:py-6" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)' }}>
           {/* Decorative circles */}
           <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-white/5 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full bg-white/5 translate-x-1/4 translate-y-1/4 pointer-events-none" />
 
-          <div className="relative w-full max-w-3xl px-6 flex flex-col items-center gap-8">
+          <div className="relative w-full max-w-6xl px-4 sm:px-6 flex flex-col items-center gap-4 sm:gap-5 my-auto">
             {/* Header */}
             <div className="text-center">
               <div className="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/30 text-yellow-300 text-xs font-bold px-4 py-1.5 rounded-full mb-4">
                 ✨ Easy School — المدرسة السهلة
               </div>
-              <h1 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight mb-2">
                 مرحباً بك في Easy School
               </h1>
-              <p className="text-blue-200 text-base">
+              <p className="text-blue-200 text-sm sm:text-base">
                 اختر مرحلتك الدراسية للبدء
               </p>
               <p className="text-blue-300/70 text-sm mt-1">
@@ -387,25 +387,26 @@ export default function PdfBrowserContent() {
               </p>
             </div>
 
-            {/* Level Groups */}
+            {/* Level Groups: three compact columns on desktop */}
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 items-start">
             {LEVEL_GROUPS.map((group) => (
-              <div key={group.key} className="w-full">
+              <div key={group.key} className="w-full rounded-2xl border border-white/15 bg-white/10 p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">{group.emoji}</span>
+                  <span className="text-xl">{group.emoji}</span>
                   <div>
-                    <h2 className="text-lg font-black text-white">{group.label}</h2>
+                    <h2 className="text-base sm:text-lg font-black text-white">{group.label}</h2>
                     <p className="text-blue-300 text-xs">{group.labelFr}</p>
                   </div>
                   <div className={`flex-1 h-px bg-gradient-to-r ${group.gradient} opacity-40 mr-2`} />
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   {group.years.map((year) => {
                     const isLocked = isFree && year.code !== FREE_ALLOWED_YEAR;
                     return (
                       <button
                         key={year.code}
                         onClick={() => handleYearSelect(year.code)}
-                        className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 text-center
+                        className={`relative flex flex-col items-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 text-center
                           ${isLocked
                             ? 'border-white/20 bg-white/10 opacity-70 cursor-pointer hover:opacity-90' :'border-white/30 bg-white/15 hover:bg-white/25 hover:border-white/50 hover:scale-105 hover:shadow-2xl'
                           }`}
@@ -415,9 +416,9 @@ export default function PdfBrowserContent() {
                             <Lock size={12} className="text-white/60" />
                           </div>
                         )}
-                        <span className="text-3xl">{year.emoji}</span>
+                        <span className="text-2xl">{year.emoji}</span>
                         <div>
-                          <div className="text-lg font-black text-white">{year.code}</div>
+                          <div className="text-base sm:text-lg font-black text-white">{year.code}</div>
                           <div className={`text-xs font-bold px-2 py-0.5 rounded-full mt-1 ${year.badge}`}>
                             {year.count.toLocaleString()} وثيقة
                           </div>
@@ -434,6 +435,7 @@ export default function PdfBrowserContent() {
                 </div>
               </div>
             ))}
+            </div>
 
             {/* Stats row */}
             <div className="flex items-center gap-3 flex-wrap justify-center">
