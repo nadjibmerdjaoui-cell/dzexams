@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createClient } from '@supabase/supabase-js';
 
 function getAdminClient() {
@@ -207,6 +208,8 @@ async function downloadPdf(pdfUrl: string): Promise<ArrayBuffer | null> {
 
 // Streaming POST handler — sends SSE events as files are processed
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   let body: {
     levels?: ('secondary' | 'middle' | 'primary')[];
     years?: string[];
@@ -382,6 +385,8 @@ export async function POST(request: NextRequest) {
 
 // GET: catalog stats per level
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     const supabase = getAdminClient();
     const { count } = await supabase
