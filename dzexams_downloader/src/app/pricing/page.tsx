@@ -229,7 +229,7 @@ function PricingContent() {
               </button>
             )}
             <p className="text-center text-xs text-muted-foreground">
-              الدفع عبر Edahabia أو CIB · Chargily Pay
+              الدفع اليدوي عبر CCP أو BaridiMob
             </p>
           </div>
         </div>
