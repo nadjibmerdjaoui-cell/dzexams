@@ -134,9 +134,9 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
   const subjectSlug = subjectSlugs[subject];
   if (!yearSlug || !subjectSlug) return [];
 
-  const url = `https://www.dzexams.com/ar/${yearSlug}/${subjectSlug}`;
-  const subjectPath = new URL(url).pathname.replace(/\\/+$/, '');
-  const categoryPrefix = `${subjectPath}/`;
+  const url = 'https://www.dzexams.com/ar/' + yearSlug + '/' + subjectSlug;
+  const subjectPath = new URL(url).pathname.replace(/\/+$/, '');
+  const categoryPrefix = subjectPath + '/';
   const results: { title: string; docId: string }[] = [];
   const seenDocs = new Set<string>();
   const categoryPages = new Set<string>();
@@ -152,12 +152,12 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
   }
 
   function scanPage(html: string, baseUrl: string) {
-    const anchorRegex = /<a\\b([^>]*)>([\\s\\S]*?)<\\/a>/gi;
+    const anchorRegex = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
     let match: RegExpExecArray | null;
 
     while ((match = anchorRegex.exec(html)) !== null) {
       const attributes = match[1];
-      const rawHref = attributes.match(/\\bhref\\s*=\\s*["']([^"']+)["']/i)?.[1];
+      const rawHref = attributes.match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1];
       if (!rawHref) continue;
 
       let target: URL;
@@ -168,7 +168,7 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
       }
 
       if (target.hostname !== 'www.dzexams.com' && target.hostname !== 'dzexams.com') continue;
-      const docMatch = target.pathname.match(/^\\/(?:ar|fr)\\/documents\\/([A-Za-z0-9+/=_-]+)/i);
+      const docMatch = target.pathname.match(/^\/(?:ar|fr)\/documents\/([A-Za-z0-9+/=_-]+)/i);
       if (docMatch) {
         const title = match[2]
           .replace(/<[^>]*>/g, ' ')
@@ -176,12 +176,12 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
           .replace(/&amp;/gi, '&')
           .replace(/&quot;/gi, '"')
           .replace(/&#39;|&apos;/gi, "'")
-          .replace(/\\s+/g, ' ')
+          .replace(/\s+/g, ' ')
           .trim();
         const docId = docMatch[1];
         if (docId && !seenDocs.has(docId)) {
           seenDocs.add(docId);
-          results.push({ title: title || `Document ${results.length + 1}`, docId });
+          results.push({ title: title || ('Document ' + (results.length + 1)), docId });
         }
       } else if (target.pathname.startsWith(categoryPrefix) && target.pathname !== subjectPath) {
         target.hash = '';
