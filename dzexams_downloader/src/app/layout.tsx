@@ -1,16 +1,8 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
-import { Geist } from 'next/font/google';
 import '../styles/tailwind.css';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
-
-const geist = Geist({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-sans',
-  display: 'swap',
-});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -30,8 +22,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ar" dir="rtl" className={geist.variable}>
-      <body className={geist.className}>
+    <html lang="ar" dir="rtl">
+      <body className="font-sans">
         <AuthProvider>
           {children}
         </AuthProvider>
