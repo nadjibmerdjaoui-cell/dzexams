@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const response = await fetch(fileUrl, {
+      redirect: 'error',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         Referer: supabaseHost ? process.env.NEXT_PUBLIC_SUPABASE_URL! : 'https://www.dzexams.com/',
