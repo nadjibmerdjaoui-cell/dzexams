@@ -218,7 +218,7 @@ async function downloadPdf(pdfUrl: string): Promise<ArrayBuffer | null> {
 
 // ── Upload to Supabase storage + upsert catalog row ──────────────────────────
 async function storeFile(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ReturnType<typeof getAdminClient>,
   params: {
     buffer: ArrayBuffer;
     year: string;
