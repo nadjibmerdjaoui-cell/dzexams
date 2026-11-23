@@ -38,8 +38,12 @@ Configure the required environment variables in your hosting provider. At minimu
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only; never expose to the browser)
+- `NEXT_PUBLIC_SITE_URL` (the deployed HTTPS origin)
+- `ADMIN_EMAILS` (comma-separated administrator email allowlist)
+- `CHARGILY_SECRET_KEY` (when payments are enabled)
 
-Add payment-provider and AI service credentials only in the hosting provider's encrypted environment-variable settings. Never commit secrets or real `.env` files.
+Add payment-provider and AI service credentials only in the hosting provider's encrypted environment-variable settings. Never commit secrets or real `.env` files. The PDF import and bulk-scrape administration endpoints deny access unless the signed-in user is listed in `ADMIN_EMAILS` or has the server-managed Supabase `app_metadata.role=admin` claim.
 
 ## Database
 
