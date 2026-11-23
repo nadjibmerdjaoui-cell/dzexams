@@ -135,7 +135,7 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
 
   const rootUrl = 'https://www.dzexams.com/ar/' + yearSlug + '/' + subjectSlug;
   const root = new URL(rootUrl);
-  const subjectPath = root.pathname.replace(/\\/+$/, '');
+  const subjectPath = root.pathname.replace(/\/+$/, '');
   const categoryPrefix = subjectPath + '/';
   const results: { title: string; docId: string }[] = [];
   const seenDocs = new Set<string>();
@@ -153,11 +153,11 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
   }
 
   function scanPage(html: string, baseUrl: string) {
-    const anchorRegex = /<a\\b([^>]*)>([\\s\\S]*?)<\\/a>/gi;
+    const anchorRegex = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
     let match: RegExpExecArray | null;
 
     while ((match = anchorRegex.exec(html)) !== null) {
-      const rawHref = match[1].match(/\\bhref\\s*=\\s*["']([^"']+)["']/i)?.[1];
+      const rawHref = match[1].match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1];
       if (!rawHref) continue;
 
       let target: URL;
@@ -169,7 +169,7 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
 
       if (target.hostname !== 'www.dzexams.com' && target.hostname !== 'dzexams.com') continue;
       target.hash = '';
-      const docMatch = target.pathname.match(/^\\/(?:ar|fr)\\/documents\\/([A-Za-z0-9+/=_-]+)/i);
+      const docMatch = target.pathname.match(/^\/(?:ar|fr)\/documents\/([A-Za-z0-9+/=_-]+)/i);
       if (docMatch) {
         const title = match[2]
           .replace(/<[^>]*>/g, ' ')
@@ -177,7 +177,7 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
           .replace(/&amp;/gi, '&')
           .replace(/&quot;/gi, '"')
           .replace(/&#39;|&apos;/gi, "'")
-          .replace(/\\s+/g, ' ')
+          .replace(/\s+/g, ' ')
           .trim();
         const docId = docMatch[1];
         if (docId && !seenDocs.has(docId)) {
@@ -189,7 +189,7 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
 
       // Follow pagination on the subject page and every nested category,
       // while never leaving this exact subject's URL subtree.
-      const sameSubjectPage = target.pathname.replace(/\\/+$/, '') === subjectPath;
+      const sameSubjectPage = target.pathname.replace(/\/+$/, '') === subjectPath;
       const nestedCategory = target.pathname.startsWith(categoryPrefix);
       if (sameSubjectPage || nestedCategory) {
         const normalized = target.toString();
