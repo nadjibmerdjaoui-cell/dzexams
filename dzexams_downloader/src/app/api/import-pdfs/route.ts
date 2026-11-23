@@ -130,16 +130,17 @@ function formatSize(bytes: number): string {
 
 async function fetchDocLinks(year: string, subject: string): Promise<{ title: string; docId: string }[]> {
   const yearSlug = YEAR_SLUGS[year];
-  const subjectSlugs = getSubjectSlugs(year);
-  const subjectSlug = subjectSlugs[subject];
+  const subjectSlug = getSubjectSlugs(year)[subject];
   if (!yearSlug || !subjectSlug) return [];
 
-  const url = 'https://www.dzexams.com/ar/' + yearSlug + '/' + subjectSlug;
-  const subjectPath = new URL(url).pathname.replace(/\/+$/, '');
+  const rootUrl = 'https://www.dzexams.com/ar/' + yearSlug + '/' + subjectSlug;
+  const root = new URL(rootUrl);
+  const subjectPath = root.pathname.replace(/\\/+$/, '');
   const categoryPrefix = subjectPath + '/';
   const results: { title: string; docId: string }[] = [];
   const seenDocs = new Set<string>();
-  const categoryPages = new Set<string>();
+  const queuedPages = new Set<string>([root.toString()]);
+  const visitedPages = new Set<string>();
 
   async function fetchHtml(pageUrl: string): Promise<string> {
     try {
@@ -152,12 +153,11 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
   }
 
   function scanPage(html: string, baseUrl: string) {
-    const anchorRegex = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+    const anchorRegex = /<a\\b([^>]*)>([\\s\\S]*?)<\\/a>/gi;
     let match: RegExpExecArray | null;
 
     while ((match = anchorRegex.exec(html)) !== null) {
-      const attributes = match[1];
-      const rawHref = attributes.match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1];
+      const rawHref = match[1].match(/\\bhref\\s*=\\s*["']([^"']+)["']/i)?.[1];
       if (!rawHref) continue;
 
       let target: URL;
@@ -168,7 +168,8 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
       }
 
       if (target.hostname !== 'www.dzexams.com' && target.hostname !== 'dzexams.com') continue;
-      const docMatch = target.pathname.match(/^\/(?:ar|fr)\/documents\/([A-Za-z0-9+/=_-]+)/i);
+      target.hash = '';
+      const docMatch = target.pathname.match(/^\\/(?:ar|fr)\\/documents\\/([A-Za-z0-9+/=_-]+)/i);
       if (docMatch) {
         const title = match[2]
           .replace(/<[^>]*>/g, ' ')
@@ -176,30 +177,38 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
           .replace(/&amp;/gi, '&')
           .replace(/&quot;/gi, '"')
           .replace(/&#39;|&apos;/gi, "'")
-          .replace(/\s+/g, ' ')
+          .replace(/\\s+/g, ' ')
           .trim();
         const docId = docMatch[1];
         if (docId && !seenDocs.has(docId)) {
           seenDocs.add(docId);
           results.push({ title: title || ('Document ' + (results.length + 1)), docId });
         }
-      } else if (target.pathname.startsWith(categoryPrefix) && target.pathname !== subjectPath) {
-        target.hash = '';
-        categoryPages.add(target.toString());
+        continue;
+      }
+
+      // Follow pagination on the subject page and every nested category,
+      // while never leaving this exact subject's URL subtree.
+      const sameSubjectPage = target.pathname.replace(/\\/+$/, '') === subjectPath;
+      const nestedCategory = target.pathname.startsWith(categoryPrefix);
+      if (sameSubjectPage || nestedCategory) {
+        const normalized = target.toString();
+        if (!visitedPages.has(normalized)) queuedPages.add(normalized);
       }
     }
   }
 
-  const rootHtml = await fetchHtml(url);
-  if (!rootHtml) return [];
-  scanPage(rootHtml, url);
-
-  // DzExams now groups files under nested subject categories (d1, e1, cours, etc.).
-  // Crawl those category pages before looking for document detail links.
-  for (const categoryUrl of Array.from(categoryPages).slice(0, 20)) {
-    await sleep(120);
-    const categoryHtml = await fetchHtml(categoryUrl);
-    if (categoryHtml) scanPage(categoryHtml, categoryUrl);
+  // Breadth-first crawl: pagination + arbitrarily nested categories, bounded
+  // to avoid runaway crawling and throttled to be polite to the source site.
+  const maxPages = 1000;
+  while (queuedPages.size > 0 && visitedPages.size < maxPages) {
+    const pageUrl = queuedPages.values().next().value as string;
+    queuedPages.delete(pageUrl);
+    if (visitedPages.has(pageUrl)) continue;
+    visitedPages.add(pageUrl);
+    const html = await fetchHtml(pageUrl);
+    if (html) scanPage(html, pageUrl);
+    if (queuedPages.size > 0) await sleep(150);
   }
 
   return results;
@@ -386,7 +395,7 @@ export async function POST(request: NextRequest) {
                     doc_type: docType,
                     size_bytes: buffer.byteLength,
                     size_label: formatSize(buffer.byteLength),
-                    source_url: '',
+                    source_url: `https://www.dzexams.com/ar/documents/${docId}`,
                     added_date: new Date().toISOString().split('T')[0],
                   }, { onConflict: 'storage_path' });
 
