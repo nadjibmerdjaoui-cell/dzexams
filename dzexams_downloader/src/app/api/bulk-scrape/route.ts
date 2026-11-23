@@ -290,7 +290,7 @@ export async function POST(request: NextRequest) {
 
   const limitPerCombo = Math.min(body.limitPerCombo ?? 20, 50);
 
-  let supabase: ReturnType<typeof createClient>;
+  let supabase: ReturnType<typeof getAdminClient>;
   try { supabase = getAdminClient(); }
   catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
