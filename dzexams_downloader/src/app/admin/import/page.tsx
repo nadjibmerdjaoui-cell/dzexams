@@ -68,8 +68,8 @@ const LIMIT_OPTIONS = [5, 10, 15, 20, 30, 50];
 let logIdCounter = 0;
 
 export default function ImportPage() {
-  const [selectedLevels, setSelectedLevels] = useState<Level[]>(['middle', 'primary']);
-  const [limitPerCombo, setLimitPerCombo] = useState(15);
+  const [selectedLevels, setSelectedLevels] = useState<Level[]>(['secondary', 'middle', 'primary']);
+  const [limitPerCombo, setLimitPerCombo] = useState(50);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
   const [stats, setStats] = useState({ stored: 0, skipped: 0, failed: 0, total: 0 });

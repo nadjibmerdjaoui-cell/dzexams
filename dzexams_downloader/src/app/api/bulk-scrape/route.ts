@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createClient } from '@supabase/supabase-js';
 
 // ── Supabase admin client (service role) ──────────────────────────────────────
@@ -217,7 +218,7 @@ async function downloadPdf(pdfUrl: string): Promise<ArrayBuffer | null> {
 
 // ── Upload to Supabase storage + upsert catalog row ──────────────────────────
 async function storeFile(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ReturnType<typeof getAdminClient>,
   params: {
     buffer: ArrayBuffer;
     year: string;
@@ -250,6 +251,8 @@ async function storeFile(
 
 // ── Main POST handler ─────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   let body: {
     years?: string[];
     subjects?: string[];
@@ -287,7 +290,7 @@ export async function POST(request: NextRequest) {
 
   const limitPerCombo = Math.min(body.limitPerCombo ?? 20, 50);
 
-  let supabase: ReturnType<typeof createClient>;
+  let supabase: ReturnType<typeof getAdminClient>;
   try { supabase = getAdminClient(); }
   catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -380,6 +383,8 @@ export async function POST(request: NextRequest) {
 
 // ── GET: return catalog stats ─────────────────────────────────────────────────
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     let supabase = getAdminClient();
     const { count } = await supabase

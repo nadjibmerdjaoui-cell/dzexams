@@ -1,2 +1,22 @@
+# Dependencies
 node_modules/
+
+# Next.js build output and caches
+.next/
+out/
+build/
+dist/
+
+# Environment and secrets
 .env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+*.swp
