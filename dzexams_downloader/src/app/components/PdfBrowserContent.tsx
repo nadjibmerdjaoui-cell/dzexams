@@ -365,12 +365,12 @@ export default function PdfBrowserContent() {
 
       {/* ── Full-screen Level/Year Selection Overlay ── */}
       {showYearOverlay && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-start overflow-y-auto overscroll-contain py-4 sm:py-6" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)' }}>
+        <div className="fixed inset-0 z-50 flex h-dvh flex-col items-center justify-start overflow-y-auto overscroll-contain py-3 sm:py-4 lg:overflow-hidden" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)' }}>
           {/* Decorative circles */}
           <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-white/5 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full bg-white/5 translate-x-1/4 translate-y-1/4 pointer-events-none" />
 
-          <div className="relative w-full max-w-6xl px-4 sm:px-6 flex flex-col items-center gap-4 sm:gap-5 my-auto">
+          <div className="relative flex min-h-full w-full max-w-6xl flex-col items-center justify-center gap-3 px-4 py-3 sm:px-6 lg:h-full lg:min-h-0 lg:gap-3 lg:py-4">
             {/* Header */}
             <div className="text-center">
               <div className="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/30 text-yellow-300 text-xs font-bold px-4 py-1.5 rounded-full mb-4">
@@ -388,7 +388,7 @@ export default function PdfBrowserContent() {
             </div>
 
             {/* Level Groups: three compact columns on desktop */}
-            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 items-stretch">
+            <div className="grid w-full min-h-0 flex-1 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 items-stretch">
             {LEVEL_GROUPS.map((group) => (
               <div key={group.key} className="w-full h-full min-h-0 flex flex-col rounded-2xl border border-white/15 bg-white/10 p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-3">
@@ -399,14 +399,14 @@ export default function PdfBrowserContent() {
                   </div>
                   <div className={`flex-1 h-px bg-gradient-to-r ${group.gradient} opacity-40 mr-2`} />
                 </div>
-                <div className="grid grid-cols-2 gap-2 lg:grid-rows-3 lg:flex-1">
+                <div className="grid grid-cols-2 grid-rows-3 gap-2 lg:flex-1">
                   {group.years.map((year) => {
                     const isLocked = isFree && year.code !== FREE_ALLOWED_YEAR;
                     return (
                       <button
                         key={year.code}
                         onClick={() => handleYearSelect(year.code)}
-                        className={`relative flex min-h-[116px] lg:min-h-0 h-full flex-col items-center justify-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 text-center
+                        className={`relative flex min-h-[104px] lg:min-h-0 h-full flex-col items-center justify-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 text-center
                           ${isLocked
                             ? 'border-white/20 bg-white/10 opacity-70 cursor-pointer hover:opacity-90' :'border-white/30 bg-white/15 hover:bg-white/25 hover:border-white/50 hover:scale-105 hover:shadow-2xl'
                           }`}
