@@ -135,26 +135,75 @@ async function fetchDocLinks(year: string, subject: string): Promise<{ title: st
   if (!yearSlug || !subjectSlug) return [];
 
   const url = `https://www.dzexams.com/ar/${yearSlug}/${subjectSlug}`;
-  try {
-    const res = await withRetry(() => fetch(url, { headers: FETCH_HEADERS }));
-    if (!res.ok) return [];
-    const html = await res.text();
-    const regex = /href="\/(?:ar|fr)\/documents\/([A-Za-z0-9+/=_-]+)"[^>]*>([^<]+)</g;
-    const results: { title: string; docId: string }[] = [];
-    const seen = new Set<string>();
-    let m;
-    while ((m = regex.exec(html)) !== null) {
-      const docId = m[1];
-      const title = m[2].trim();
-      if (docId && title && !seen.has(docId)) {
-        seen.add(docId);
-        results.push({ title, docId });
+  const subjectPath = new URL(url).pathname.replace(/\\/+$/, '');
+  const categoryPrefix = `${subjectPath}/`;
+  const results: { title: string; docId: string }[] = [];
+  const seenDocs = new Set<string>();
+  const categoryPages = new Set<string>();
+
+  async function fetchHtml(pageUrl: string): Promise<string> {
+    try {
+      const res = await withRetry(() => fetch(pageUrl, { headers: FETCH_HEADERS }));
+      if (!res.ok) return '';
+      return await res.text();
+    } catch {
+      return '';
+    }
+  }
+
+  function scanPage(html: string, baseUrl: string) {
+    const anchorRegex = /<a\\b([^>]*)>([\\s\\S]*?)<\\/a>/gi;
+    let match: RegExpExecArray | null;
+
+    while ((match = anchorRegex.exec(html)) !== null) {
+      const attributes = match[1];
+      const rawHref = attributes.match(/\\bhref\\s*=\\s*["']([^"']+)["']/i)?.[1];
+      if (!rawHref) continue;
+
+      let target: URL;
+      try {
+        target = new URL(rawHref.replace(/&amp;/g, '&'), baseUrl);
+      } catch {
+        continue;
+      }
+
+      if (target.hostname !== 'www.dzexams.com' && target.hostname !== 'dzexams.com') continue;
+      const docMatch = target.pathname.match(/^\\/(?:ar|fr)\\/documents\\/([A-Za-z0-9+/=_-]+)/i);
+      if (docMatch) {
+        const title = match[2]
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/&nbsp;|&#160;/gi, ' ')
+          .replace(/&amp;/gi, '&')
+          .replace(/&quot;/gi, '"')
+          .replace(/&#39;|&apos;/gi, "'")
+          .replace(/\\s+/g, ' ')
+          .trim();
+        const docId = docMatch[1];
+        if (docId && !seenDocs.has(docId)) {
+          seenDocs.add(docId);
+          results.push({ title: title || `Document ${results.length + 1}`, docId });
+        }
+      } else if (target.pathname.startsWith(categoryPrefix) && target.pathname !== subjectPath) {
+        target.hash = '';
+        categoryPages.add(target.toString());
       }
     }
-    return results;
-  } catch { return []; }
-}
+  }
 
+  const rootHtml = await fetchHtml(url);
+  if (!rootHtml) return [];
+  scanPage(rootHtml, url);
+
+  // DzExams now groups files under nested subject categories (d1, e1, cours, etc.).
+  // Crawl those category pages before looking for document detail links.
+  for (const categoryUrl of Array.from(categoryPages).slice(0, 20)) {
+    await sleep(120);
+    const categoryHtml = await fetchHtml(categoryUrl);
+    if (categoryHtml) scanPage(categoryHtml, categoryUrl);
+  }
+
+  return results;
+}
 async function extractPdfUrl(docId: string): Promise<string | null> {
   const pageUrl = `https://www.dzexams.com/ar/documents/${docId}`;
   try {
