@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
   const safeZipName = sanitize(zipName) || 'dzexams-files';
 
-  return new NextResponse(zipBuffer, {
+  return new NextResponse(new Uint8Array(zipBuffer), {
     status: 200,
     headers: {
       'Content-Type': 'application/zip',
