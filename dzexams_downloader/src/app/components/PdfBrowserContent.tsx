@@ -388,9 +388,9 @@ export default function PdfBrowserContent() {
             </div>
 
             {/* Level Groups: three compact columns on desktop */}
-            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 items-start">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 items-stretch">
             {LEVEL_GROUPS.map((group) => (
-              <div key={group.key} className="w-full rounded-2xl border border-white/15 bg-white/10 p-3 sm:p-4">
+              <div key={group.key} className="w-full h-full min-h-0 flex flex-col rounded-2xl border border-white/15 bg-white/10 p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xl">{group.emoji}</span>
                   <div>
@@ -399,14 +399,14 @@ export default function PdfBrowserContent() {
                   </div>
                   <div className={`flex-1 h-px bg-gradient-to-r ${group.gradient} opacity-40 mr-2`} />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 lg:grid-rows-3 lg:flex-1">
                   {group.years.map((year) => {
                     const isLocked = isFree && year.code !== FREE_ALLOWED_YEAR;
                     return (
                       <button
                         key={year.code}
                         onClick={() => handleYearSelect(year.code)}
-                        className={`relative flex flex-col items-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 text-center
+                        className={`relative flex min-h-[116px] lg:min-h-0 h-full flex-col items-center justify-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 text-center
                           ${isLocked
                             ? 'border-white/20 bg-white/10 opacity-70 cursor-pointer hover:opacity-90' :'border-white/30 bg-white/15 hover:bg-white/25 hover:border-white/50 hover:scale-105 hover:shadow-2xl'
                           }`}
