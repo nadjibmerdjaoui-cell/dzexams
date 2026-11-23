@@ -98,20 +98,59 @@ export async function POST(req: NextRequest) {
       const subscriptionPlan = metadata.subscription_plan as 'pro' | 'premium';
       const period = metadata.period as 'monthly' | 'annual';
 
-      if (!userId || !subscriptionPlan) {
-        console.error('[Webhook] Missing metadata', metadata);
+      if (
+        !userId ||
+        !['pro', 'premium'].includes(subscriptionPlan) ||
+        !['monthly', 'annual'].includes(period)
+      ) {
+        console.error('[Webhook] Invalid payment metadata');
+        return NextResponse.json({ error: 'Invalid payment metadata' }, { status: 400 });
+      }
+
+      // A valid signature is not enough: the checkout must match a pending
+      // payment created by this application for the same user, plan and amount.
+      const { data: existingPayment, error: paymentLookupError } = await supabase
+        .from('payments')
+        .select('id, user_id, plan, period, amount, currency, status')
+        .eq('chargily_checkout_id', checkout.id)
+        .maybeSingle();
+
+      if (paymentLookupError || !existingPayment) {
+        console.error('[Webhook] Checkout does not match a local payment');
+        return NextResponse.json({ error: 'Unknown checkout' }, { status: 404 });
+      }
+
+      if (
+        existingPayment.user_id !== userId ||
+        existingPayment.plan !== subscriptionPlan ||
+        existingPayment.period !== period ||
+        existingPayment.amount !== checkout.amount ||
+        existingPayment.currency.toLowerCase() !== checkout.currency.toLowerCase()
+      ) {
+        console.error('[Webhook] Checkout details do not match local payment');
+        return NextResponse.json({ error: 'Payment details mismatch' }, { status: 400 });
+      }
+
+      // Webhook delivery is retried by payment providers; do not issue duplicate invoices.
+      if (existingPayment.status === 'paid') {
         return NextResponse.json({ received: true });
       }
 
-      // Update payment record
-      await supabase
+      const paidAt = new Date().toISOString();
+      const { error: paymentUpdateError } = await supabase
         .from('payments')
         .update({
           status: 'paid',
-          paid_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          paid_at: paidAt,
+          updated_at: paidAt,
         })
-        .eq('chargily_checkout_id', checkout.id);
+        .eq('id', existingPayment.id)
+        .eq('status', 'pending');
+
+      if (paymentUpdateError) {
+        console.error('[Webhook] Could not mark payment paid:', paymentUpdateError.message);
+        return NextResponse.json({ error: 'Could not update payment' }, { status: 500 });
+      }
 
       // Calculate subscription expiry
       const now = new Date();
