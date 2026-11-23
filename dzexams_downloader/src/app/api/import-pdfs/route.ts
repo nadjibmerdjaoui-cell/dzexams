@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/require-admin';
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 
-function getAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  if (!url || !key) throw new Error('Missing Supabase env vars');
-  return createClient(url, key, { auth: { persistSession: false } });
-}
 
 const SECONDARY_SUBJECT_SLUGS: Record<string, string> = {
   'رياضيات': 'mathematiques',
@@ -227,7 +221,7 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        const supabase = getAdminClient();
+        const supabase = await createServerSupabaseClient();
 
         // Build year/subject lists
         let years: string[] = [];
@@ -388,7 +382,7 @@ export async function GET() {
   const denied = await requireAdmin();
   if (denied) return denied;
   try {
-    const supabase = getAdminClient();
+    const supabase = await createServerSupabaseClient();
     const { count } = await supabase
       .from('pdf_catalog')
       .select('id', { count: 'exact', head: true });
