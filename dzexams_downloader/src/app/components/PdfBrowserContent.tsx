@@ -399,14 +399,14 @@ export default function PdfBrowserContent() {
                   </div>
                   <div className={`flex-1 h-px bg-gradient-to-r ${group.gradient} opacity-40 mr-2`} />
                 </div>
-                <div className={`grid ${group.key === 'primary' ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-2'} gap-2 lg:flex-1`}>
+                <div className={`grid min-h-0 ${group.key === 'primary' ? 'grid-cols-2 lg:grid-cols-3 lg:grid-rows-2' : 'grid-cols-2 lg:grid-rows-2'} gap-2 lg:flex-1`}>
                   {group.years.map((year) => {
                     const isLocked = isFree && year.code !== FREE_ALLOWED_YEAR;
                     return (
                       <button
                         key={year.code}
                         onClick={() => handleYearSelect(year.code)}
-                        className={`relative flex min-h-[104px] lg:min-h-0 h-full flex-col items-center justify-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 text-center
+                        className={`relative flex min-w-0 min-h-[104px] lg:min-h-0 h-full overflow-hidden flex-col items-center justify-center gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-200 text-center
                           ${isLocked
                             ? 'border-white/20 bg-white/10 opacity-70 cursor-pointer hover:opacity-90' :'border-white/30 bg-white/15 hover:bg-white/25 hover:border-white/50 hover:scale-105 hover:shadow-2xl'
                           }`}
