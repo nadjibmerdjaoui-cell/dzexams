@@ -89,6 +89,9 @@ export async function POST(req: NextRequest) {
 
     const event: ChargilyWebhookEvent = JSON.parse(rawBody);
     const checkout = event.data;
+    if (!checkout?.id || (event.type === 'checkout.paid' && checkout.status !== 'paid')) {
+      return NextResponse.json({ error: 'Invalid checkout event' }, { status: 400 });
+    }
     const metadata = checkout.metadata || {};
 
     const supabase = getServiceClient();
@@ -137,7 +140,7 @@ export async function POST(req: NextRequest) {
       }
 
       const paidAt = new Date().toISOString();
-      const { error: paymentUpdateError } = await supabase
+      const { data: updatedPayment, error: paymentUpdateError } = await supabase
         .from('payments')
         .update({
           status: 'paid',
@@ -145,11 +148,16 @@ export async function POST(req: NextRequest) {
           updated_at: paidAt,
         })
         .eq('id', existingPayment.id)
-        .eq('status', 'pending');
+        .eq('status', 'pending')
+        .select('id')
+        .maybeSingle();
 
       if (paymentUpdateError) {
         console.error('[Webhook] Could not mark payment paid:', paymentUpdateError.message);
         return NextResponse.json({ error: 'Could not update payment' }, { status: 500 });
+      }
+      if (!updatedPayment) {
+        return NextResponse.json({ received: true });
       }
 
       // Calculate subscription expiry
