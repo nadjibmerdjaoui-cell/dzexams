@@ -399,7 +399,7 @@ export default function PdfBrowserContent() {
                   </div>
                   <div className={`flex-1 h-px bg-gradient-to-r ${group.gradient} opacity-40 mr-2`} />
                 </div>
-                <div className="grid grid-cols-2 grid-rows-3 gap-2 lg:flex-1">
+                <div className={`grid ${group.key === 'primary' ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-2'} gap-2 lg:flex-1`}>
                   {group.years.map((year) => {
                     const isLocked = isFree && year.code !== FREE_ALLOWED_YEAR;
                     return (
