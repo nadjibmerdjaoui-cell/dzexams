@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createClient } from '@supabase/supabase-js';
 
 // ── Supabase admin client (service role) ──────────────────────────────────────
@@ -250,6 +251,8 @@ async function storeFile(
 
 // ── Main POST handler ─────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   let body: {
     years?: string[];
     subjects?: string[];
@@ -380,6 +383,8 @@ export async function POST(request: NextRequest) {
 
 // ── GET: return catalog stats ─────────────────────────────────────────────────
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     let supabase = getAdminClient();
     const { count } = await supabase
